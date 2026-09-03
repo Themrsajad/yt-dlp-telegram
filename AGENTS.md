@@ -23,7 +23,7 @@ A single-file Telegram bot (`main.py`) that uses yt-dlp to download media from Y
 ### Single-file structure (`main.py`)
 
 - **Config** — imported from `config.py` as a plain Python module with typed variables
-- **Database** — SQLite3 at `db.db`, single table `user_cookies` for encrypted cookie storage per user
+- **Database** — SQLite3 at `db.db` (or in `data/db.db` via `DATA_DIR` in Docker), single table `user_cookies` for encrypted cookie storage per user
 - **Command handlers** (pyTelegramBotAPI):
   - `/start`, `/help` — help text
   - `/download <url>` — download video
@@ -42,9 +42,9 @@ A single-file Telegram bot (`main.py`) that uses yt-dlp to download media from Y
 - `main.py` — bot logic
 - `config.py` — runtime configuration (gitignored)
 - `example.config.py` — documented config template
-- `db.db` — SQLite3 database (gitignored)
+- `db.db` — SQLite3 database (gitignored; placed in `data/` when running with Docker)
 - `Dockerfile` — Python 3.11-slim + ffmpeg + bun
-- `docker-compose.yml` — mounts `config.py` as read-only volume
+- `docker-compose.yml` — mounts `config.py` (ro) and `./data:/app/data`
 
 ### Bot framework details
 

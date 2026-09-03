@@ -9,6 +9,8 @@ ENV PATH="/root/.bun/bin:$PATH"
 
 WORKDIR /app
 
+ENV DATA_DIR="/app/data"
+
 COPY requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt

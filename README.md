@@ -154,6 +154,8 @@ This will:
 - build the image
 - mount your local `config.py` into container as read-only:
   - `./config.py:/app/config.py:ro`
+- mount the local `./data` directory to persist `db.db`:
+  - `./data:/app/data`
 - start bot with restart policy `unless-stopped`
 
 ---

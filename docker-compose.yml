@@ -4,3 +4,4 @@ services:
     restart: unless-stopped
     volumes:
       - ./config.py:/app/config.py:ro
+      - ./data:/app/data

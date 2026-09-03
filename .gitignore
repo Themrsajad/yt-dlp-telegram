@@ -5,3 +5,7 @@ test.json
 venv
 .DS_Store
 db.db
+data/
+*.db-journal
+*.db-wal
+*.db-shm

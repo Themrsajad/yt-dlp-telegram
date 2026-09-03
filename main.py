@@ -46,10 +46,29 @@ key = hashlib.sha256(config.secret_key.encode()).digest()
 cipher = Fernet(base64.urlsafe_b64encode(key))
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
-db_path = os.path.join(script_dir, "db.db")
+data_dir = os.environ.get("DATA_DIR") or getattr(config, "data_dir", None)
+if data_dir:
+    os.makedirs(data_dir, exist_ok=True)
+    db_path = os.path.join(data_dir, "db.db")
+    legacy_db = os.path.join(script_dir, "db.db")
+    if (
+        os.path.isfile(legacy_db)
+        and not os.path.exists(db_path)
+        and os.path.abspath(legacy_db) != os.path.abspath(db_path)
+    ):
+        import shutil
+
+        shutil.copy2(legacy_db, db_path)
+else:
+    db_path = os.path.join(script_dir, "db.db")
 
 
 def init_db() -> None:
+    if os.path.isdir(db_path):
+        raise SystemExit(
+            f"ERROR: '{db_path}' is a directory, not a file. "
+            "Please check your Docker volume configuration."
+        )
     conn = sqlite3.connect(db_path)
     try:
         cursor = conn.cursor()
