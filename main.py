@@ -900,39 +900,32 @@ def handle_cookie(message):
 
     if not message.document:
         result = db_query(
-            "SELECT cookie_data FROM user_cookies WHERE user_id = ?",
+            "SELECT 1 FROM user_cookies WHERE user_id = ?",
             (user_id,),
             fetchone=True,
         )
 
         if result:
-            cookie_file = f"{config.output_folder}/cookies_{user_id}_temp.txt"
-            try:
-                decrypted_data = decrypt_cookie(result[0])
-                with open(cookie_file, "w") as f:
-                    f.write(decrypted_data)
+            markup = types.InlineKeyboardMarkup()
+            delete_btn = types.InlineKeyboardButton(
+                "🗑 Delete", callback_data="delete_cookies"
+            )
+            markup.add(delete_btn)
 
-                markup = types.InlineKeyboardMarkup()
-                delete_btn = types.InlineKeyboardButton(
-                    "🗑 Delete", callback_data="delete_cookies"
-                )
-                markup.add(delete_btn)
-
-                with open(cookie_file, "rb") as f:
-                    bot.send_document(
-                        message.chat.id,
-                        f,
-                        reply_to_message_id=message.message_id,
-                        visible_file_name="cookies.txt",
-                        reply_markup=markup,
-                    )
-            finally:
-                if os.path.exists(cookie_file):
-                    os.remove(cookie_file)
+            bot.reply_to(
+                message,
+                "Cookies are present.",
+                reply_markup=markup,
+            )
         else:
             bot.reply_to(
                 message,
-                "No cookies stored. Send a file with this command to store cookies.",
+                "No cookies stored.\n\n"
+                "<b>How to upload cookies:</b>\n"
+                "1. Export your cookies using the <a href=\"https://github.com/kairi003/Get-cookies.txt-LOCALLY?tab=readme-ov-file#from-webstore\">Get cookies.txt LOCALLY</a> extension.\n"
+                "2. Send the exported <code>cookies.txt</code> file to this chat with the caption <code>/cookies</code>.",
+                parse_mode="HTML",
+                disable_web_page_preview=True,
             )
         return
 
@@ -942,7 +935,11 @@ def handle_cookie(message):
         return
 
     downloaded_file = bot.download_file(file_info.file_path)
-    cookie_data = downloaded_file.decode("utf-8")
+    try:
+        cookie_data = downloaded_file.decode("utf-8")
+    except UnicodeDecodeError:
+        bot.reply_to(message, "Invalid file encoding. Please upload a UTF-8 text file.")
+        return
 
     filtered_cookie_data = filter_cookies_by_domain(cookie_data)
 
@@ -966,12 +963,20 @@ def callback(call):
             commit=True,
         )
 
-        bot.edit_message_caption(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            caption="Cookies deleted successfully!",
-            reply_markup=None,
-        )
+        if call.message.text:
+            bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                text="Cookies deleted successfully!",
+                reply_markup=None,
+            )
+        else:
+            bot.edit_message_caption(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                caption="Cookies deleted successfully!",
+                reply_markup=None,
+            )
         bot.answer_callback_query(call.id, "Cookies deleted!")
     elif call.message.reply_to_message:
         if call.from_user.id == call.message.reply_to_message.from_user.id:
