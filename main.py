@@ -27,6 +27,7 @@ blacklist = getattr(config, "blacklist", None)
 logs = getattr(config, "logs", None)
 js_runtime = getattr(config, "js_runtime", None)
 max_filesize = getattr(config, "max_filesize", 50000000)
+max_cookie_filesize = getattr(config, "max_cookie_filesize", 1000000)
 max_user_concurrent_downloads = getattr(config, "max_user_concurrent_downloads", 1)
 max_global_concurrent_downloads = getattr(config, "max_global_concurrent_downloads", 2)
 max_retries = getattr(config, "max_retries", 3)
@@ -929,12 +930,38 @@ def handle_cookie(message):
             )
         return
 
+    if message.document.file_size and message.document.file_size > max_cookie_filesize:
+        size_str = (
+            f"{max_cookie_filesize // 1_000_000}MB"
+            if max_cookie_filesize >= 1_000_000
+            else f"{max_cookie_filesize // 1000}KB"
+        )
+        bot.reply_to(
+            message, f"File is too large. Cookie files must be smaller than {size_str}."
+        )
+        return
+
     file_info = bot.get_file(message.document.file_id)
     if not file_info.file_path:
         bot.reply_to(message, "Failed to get file information.")
         return
 
     downloaded_file = bot.download_file(file_info.file_path)
+    if len(downloaded_file) > max_cookie_filesize:
+        size_str = (
+            f"{max_cookie_filesize // 1_000_000}MB"
+            if max_cookie_filesize >= 1_000_000
+            else f"{max_cookie_filesize // 1000}KB"
+        )
+        bot.reply_to(
+            message, f"File is too large. Cookie files must be smaller than {size_str}."
+        )
+        return
+
+    if not downloaded_file:
+        bot.reply_to(message, "The cookie file is empty.")
+        return
+
     try:
         cookie_data = downloaded_file.decode("utf-8")
     except UnicodeDecodeError:

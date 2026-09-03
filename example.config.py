@@ -13,6 +13,9 @@ logs: int | None = None
 # The maximum file size in bytes
 max_filesize: int = 50000000
 
+# The maximum cookie file size in bytes (default 1MB)
+max_cookie_filesize: int = 1000000
+
 # Maximum number of concurrent downloads allowed per user
 max_user_concurrent_downloads: int = 1
 
