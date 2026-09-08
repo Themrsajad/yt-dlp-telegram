@@ -1,8 +1,8 @@
 # The telegram bot token
-token: str = "123456789:ABcdefGhiJKlmnO"
+token: str = "8298573195:AAGlPtIrIZ28hllKkGH2TscHCGToHZ3G2cI"
 
 # A list of user ids that are allowed to use the bot, if None everyone is allowed
-whitelist: list[int] | None = None  # Example: [123456789, 987654321]
+whitelist: list[1205883528] | None = None  # Example: [123456789, 987654321]
 
 # A list of user ids that are not allowed to use the bot, if None everyone is allowed
 blacklist: list[int] | None = None
