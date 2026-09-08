@@ -11,7 +11,7 @@ blacklist: list[int] | None = None
 logs: int | None = None
 
 # The maximum file size in bytes
-max_filesize: int = 50000000
+max_filesize: int = 400000000
 
 # The maximum cookie file size in bytes (default 1MB)
 max_cookie_filesize: int = 1000000
